@@ -6,21 +6,21 @@ import java.util.BitSet;
 import org.apache.commons.lang.StringUtils;
 
 public class AssistorConvertUtil {
-	 /** 
-     * 将BitSet对象转化为ByteArray 
-     * @param bitSet 
-     * @return 
-     */  
-    public static byte[] bitSet2ByteArray(BitSet bitSet) {  
-        byte[] bytes = new byte[bitSet.size() / 8];  
-        for (int i = 0; i < bitSet.size(); i++) {  
-            int index = i / 8;  
-            int offset = 7 - i % 8;  
-            bytes[index] |= (bitSet.get(i) ? 1 : 0) << offset;  
-        }  
-        return bytes;  
-    }  
-   
+	 /**
+     * 将BitSet对象转化为ByteArray
+     * @param bitSet BitSet
+     * @return bytes
+     */
+    public static byte[] bitSet2ByteArray(BitSet bitSet) {
+        byte[] bytes = new byte[bitSet.size() / 8];
+        for (int i = 0; i < bitSet.size(); i++) {
+            int index = i / 8;
+            int offset = 7 - i % 8;
+            bytes[index] |= (bitSet.get(i) ? 1 : 0) << offset;
+        }
+        return bytes;
+    }
+
 	// 字节字符串转换为字节数组
 	public static byte[] BytesStrToBytes(String bytesStr) {
 		char[] chars = bytesStr.toCharArray();
@@ -32,17 +32,17 @@ public class AssistorConvertUtil {
 		}
 		return bytes;
 	}
-	
+
 	// 字节数组转换为字节字符串
 	public static String BytesToBytesStr(byte[] bytes) {
-		StringBuffer sBuffer = new StringBuffer();
-		for (int i = 0; i < bytes.length; i++) {
-			sBuffer.append(Integer.toString((bytes[i] & 0xFF) + 0x100, 16).substring(1));
+		StringBuilder sBuffer = new StringBuilder();
+		for (byte aByte : bytes) {
+			sBuffer.append(Integer.toString((aByte & 0xFF) + 0x100, 16).substring(1));
 		}
 		return sBuffer.toString().toUpperCase();
 	}
-	
-	
+
+
 	// 字节字符串转换为比特字符串
 	public static String BytesStrToBitsStr(String bytesStr) {
 		return BytesToBitsStr(BytesStrToBytes(bytesStr));
@@ -66,7 +66,7 @@ public class AssistorConvertUtil {
 
 	// 字节数组转换为比特字符串
 	public static String BytesToBitsStr(byte[] bytes) {
-		StringBuffer sBuffer = new StringBuffer();
+		StringBuilder sBuffer = new StringBuilder();
 		int pos = 0;
 		for (byte b : bytes) {
 			// 高四位
@@ -84,7 +84,7 @@ public class AssistorConvertUtil {
 		try {
 			return new String(BytesStrToBytes(bytesStr), "GBK");
 		} catch (UnsupportedEncodingException e) {
-			return new String();
+			return "";
 		}
 	}
 
@@ -93,7 +93,7 @@ public class AssistorConvertUtil {
 		try {
 			return new String(BytesStrToBytes(bytesStr), encoding);
 		} catch (UnsupportedEncodingException e) {
-			return new String();
+			return "";
 		}
 	}
 
@@ -102,7 +102,7 @@ public class AssistorConvertUtil {
 		try {
 			return BytesToBytesStr(str.getBytes("GBK")).toUpperCase();
 		} catch (UnsupportedEncodingException e) {
-			return new String().toUpperCase();
+			return "";
 		}
 	}
 
@@ -111,23 +111,22 @@ public class AssistorConvertUtil {
 		try {
 			return BytesToBytesStr(str.getBytes(encoding)).toUpperCase();
 		} catch (UnsupportedEncodingException e) {
-			return new String().toUpperCase();
+			return "";
 		}
 	}
 
 	// 10进制转换为2进制
 	public static String DecToBit(int dec) {
-		String BitStr = Integer.toBinaryString(dec);
+		StringBuilder BitStr = new StringBuilder(Integer.toBinaryString(dec));
 		while (BitStr.length() % 4 > 0) {
-			BitStr = "0" + BitStr;
+			BitStr.insert(0, "0");
 		}
-		return BitStr;
+		return BitStr.toString();
 	}
 
 	// 10进制转换为16进制
 	public static String DecToHex(int dec) {
-		String hexStr = Integer.toHexString(dec).toUpperCase();
-		return hexStr;
+		return Integer.toHexString(dec).toUpperCase();
 	}
 
 	// 16进制转换为2进制
