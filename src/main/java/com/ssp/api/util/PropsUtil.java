@@ -11,21 +11,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PropsUtil {
-	
-	private static Logger logger = LoggerFactory.getLogger(PropsUtil.class);
 
-	private static final String[] files = { 
+	private static final Logger logger = LoggerFactory.getLogger(PropsUtil.class);
+
+	private static final String[] files = {
 			"META-INF/properties/dynprops.properties",
 			"META-INF/properties/api.properties",
 			"META-INF/properties/kuaike.properties",
 			"META-INF/properties/app.properties",
 			"META-INF/properties/rain.properties"};
-	private static Properties properties = new Properties();
-	private static long refreshInterval = 1000*30;// 30秒刷新
+	private static final Properties properties = new Properties();
 	private static Map<String, Long> modMap = new HashMap<String, Long>();
 	public static long lastTime = System.currentTimeMillis();
 
-	static { 
+	static {
 		load();
 	}
 
@@ -65,38 +64,40 @@ public class PropsUtil {
 	}
 
 	/**
-	* desc: 
+	* desc:
 	*/
 	private static void reflesh() {
 		long now = System.currentTimeMillis();
+		// 30秒刷新
+		long refreshInterval = 1000 * 30;
 		if (now - lastTime > refreshInterval) {
 			load();
 			lastTime = now;
 		}
 	}
 
-	
+
 	/**
-	* desc: 
-	* @param key
-	* @param defaultValue
-	* @return
+	* desc:
+	* @param key String
+	* @param defaultValue String
+	* @return String
 	*/
 	public static String getMessage(String key, String defaultValue){
 		reflesh();
 		return properties.getProperty(key, defaultValue);
 	}
-	
+
 	/**
-	* desc: 
-	* @param key
-	* @return
+	* desc:
+	* @param key String
+	* @return String
 	*/
 	public static String getMessage(String key){
 		reflesh();
 		return properties.getProperty(key);
 	}
-	
+
 	public static String getMessage(String key, Object[] args){
 		reflesh();
 		if(properties.containsKey(key)){

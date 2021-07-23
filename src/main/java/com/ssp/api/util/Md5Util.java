@@ -13,29 +13,29 @@ import org.apache.log4j.Logger;
 public class Md5Util {
 	private static Logger logger = Logger.getLogger(Md5Util.class);
 	private static Md5Util instance;
-	
+
 	private final static String[] hexDigits = { "0", "1", "2", "3", "4", "5",
 			"6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
 
 	private Md5Util(){
-		
+
 	}
-	
+
 	public static Md5Util getInstance(){
 		if(null == instance)
 			return new Md5Util();
 		return instance;
 	}
-	
+
 	/**
 	 * 转换字节数组为16进制字串
 	 * @param b 字节数组
 	 * @return 16进制字串
 	 */
 	private String byteArrayToHexString(byte[] b) {
-		StringBuffer resultSb = new StringBuffer();
-		for (int i = 0; i < b.length; i++) {
-			resultSb.append(byteToHexString(b[i]));
+		StringBuilder resultSb = new StringBuilder();
+		for (byte value : b) {
+			resultSb.append(byteToHexString(value));
 		}
 		return resultSb.toString();
 	}
@@ -57,7 +57,6 @@ public class Md5Util {
 	/**
 	 * MD5 摘要计算(byte[]).
 	 * @param src byte[]
-	 * @throws Exception
 	 * @return String
 	 */
 	public String md5Digest(byte[] src) {
@@ -67,14 +66,15 @@ public class Md5Util {
 			alg = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
 			return null;
-		} 
+		}
 		return byteArrayToHexString(alg.digest(src));
 	}
-	
+
 	/***
 	 * MD5 摘要计算(String).
-	 * @param src
-	 * @return
+	 * @param src String
+	 * @param charsetName String
+	 * @return String
 	 */
 	public String md5Digest(String src, String charsetName){
 		try{
@@ -88,7 +88,7 @@ public class Md5Util {
 			return null;
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			System.out.println(Md5Util.getInstance().md5Digest("88888".getBytes("iso8859-1")));

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -18,6 +19,8 @@ import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Objects;
+
 import org.apache.log4j.Logger;
 
 /*****
@@ -26,7 +29,7 @@ import org.apache.log4j.Logger;
  *
  */
 public class RSAUtil {
-	private static Logger log = Logger.getLogger(RSAUtil.class);
+	private static final Logger log = Logger.getLogger(RSAUtil.class);
 	private static RSAUtil instance;
 
 	public static RSAUtil getInstance() {
@@ -36,13 +39,11 @@ public class RSAUtil {
 	}
 
 	/*****
-	 * 
-	 * 鍏挜銆佺閽ユ枃浠剁敓鎴�
-	 * 
-	 * @param keyPath锛氫繚瀛樻枃浠剁殑璺緞
-	 * @param keyFlag锛氭枃浠跺悕鍓嶇紑
+	 *
+	 * @param keyPath String
+	 * @param namePrefix String
 	 */
-	private void generateKeyPair(String key_path, String name_prefix) {
+	private void generateKeyPair(String keyPath, String namePrefix) {
 		KeyPairGenerator keygen = null;
 		try {
 			keygen = KeyPairGenerator.getInstance("RSA");
@@ -59,17 +60,17 @@ public class RSAUtil {
 		String pubKeyStr = new String(org.apache.commons.codec.binary.Base64.encodeBase64(pubkey.getEncoded()));
 		String priKeyStr = new String(org.apache.commons.codec.binary.Base64
 				.encodeBase64(org.apache.commons.codec.binary.Base64.encodeBase64(prikey.getEncoded())));
-		File file = new File(key_path);
+		File file = new File(keyPath);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
 
 		try {
-			FileOutputStream fos = new FileOutputStream(new File(key_path + name_prefix + "_RSAKey_private.txt"));
+			FileOutputStream fos = new FileOutputStream(new File(keyPath + namePrefix + "_RSAKey_private.txt"));
 			fos.write(priKeyStr.getBytes());
 			fos.close();
 
-			fos = new FileOutputStream(new File(key_path + name_prefix + "_RSAKey_public.txt"));
+			fos = new FileOutputStream(new File(keyPath + namePrefix + "_RSAKey_public.txt"));
 			fos.write(pubKeyStr.getBytes());
 			fos.close();
 		} catch (IOException e) {
@@ -78,9 +79,9 @@ public class RSAUtil {
 	}
 
 	/*****
-	 * 
+	 *
 	 * 璇诲彇瀵嗛挜鏂囦欢鍐呭
-	 * 
+	 *
 	 * @param key_file:鏂囦欢璺緞
 	 * @return
 	 */
@@ -123,22 +124,21 @@ public class RSAUtil {
 	}
 
 	/*****
-	 * 
-	 * RSA绛惧悕澶勭悊锛氱敓鎴愮鍚嶇粨鏋�
-	 * 
-	 * @param prikeyvalue锛歊SA绉侀挜
-	 * @param sign_str锛氬緟绛惧悕瀛楃涓叉簮鍐呭
-	 * @return
+	 *
+	 *
+	 * @param priKeyValue String
+	 * @param signStr String
+	 * @return String
 	 */
-	public static String sign(String prikeyvalue, String sign_str) {
+	public static String sign(String priKeyValue, String signStr) {
 		try {
-			PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64Util.byteToBase64Decoding(prikeyvalue));
+			PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Objects.requireNonNull(Base64Util.byteToBase64Decoding(priKeyValue)));
 			KeyFactory keyf = KeyFactory.getInstance("RSA");
 			PrivateKey myprikey = keyf.generatePrivate(priPKCS8);
 
 			Signature signet = Signature.getInstance("MD5withRSA");
 			signet.initSign(myprikey);
-			signet.update(sign_str.getBytes("UTF-8"));
+			signet.update(signStr.getBytes(StandardCharsets.UTF_8));
 			byte[] signed = signet.sign();
 
 			return new String(org.apache.commons.codec.binary.Base64.encodeBase64(signed));
@@ -149,23 +149,22 @@ public class RSAUtil {
 	}
 
 	/*****
-	 * 
-	 * RSA绛惧悕鏍￠獙楠岃瘉
-	 * 
-	 * @param pubkeyvalue锛歊SA鍏挜
-	 * @param sign_str锛氬緟绛惧悕瀛楃涓叉簮鍐呭
-	 * @param signed_str锛歊SA绛惧悕缁撴灉
-	 * @return
+	 *
+	 *
+	 * @param pubKeyValue String
+	 * @param signStr String
+	 * @param signedStr String
+	 * @return boolean
 	 */
-	public static boolean checksign(String pubkeyvalue, String sign_str, String signed_str) {
+	public static boolean checksign(String pubKeyValue, String signStr, String signedStr) {
 		try {
-			X509EncodedKeySpec bobPubKeySpec = new X509EncodedKeySpec(Base64Util.byteToBase64Decoding(pubkeyvalue));
+			X509EncodedKeySpec bobPubKeySpec = new X509EncodedKeySpec(Objects.requireNonNull(Base64Util.byteToBase64Decoding(pubKeyValue)));
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			PublicKey pubKey = keyFactory.generatePublic(bobPubKeySpec);
-			byte[] signed = Base64Util.byteToBase64Decoding(signed_str);
+			byte[] signed = Base64Util.byteToBase64Decoding(signedStr);
 			Signature signetcheck = Signature.getInstance("MD5withRSA");
 			signetcheck.initVerify(pubKey);
-			signetcheck.update(sign_str.getBytes("UTF-8"));
+			signetcheck.update(signStr.getBytes(StandardCharsets.UTF_8));
 			return signetcheck.verify(signed);
 		} catch (Exception e) {
 			log.error("绛惧悕楠岃瘉寮傚父," + e.getMessage());
