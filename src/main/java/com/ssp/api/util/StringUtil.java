@@ -1,6 +1,7 @@
 package com.ssp.api.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 
@@ -8,7 +9,6 @@ import java.security.MessageDigest;
 public class StringUtil
 {
 	/**
-	 * �ж�destStr�Ƿ�Ϊ�գ����Ϊ���򷵻�Ĭ��ֵ�����򷵻�destStr
 	 * @param destStr
 	 * @param defaultStr
 	 * @return
@@ -20,7 +20,7 @@ public class StringUtil
 			return destStr;
 		}
 	}
-	
+
 	public static String intToString(Integer integer){
 		if(integer == null){
 			return "0";
@@ -28,8 +28,8 @@ public class StringUtil
 			return String.valueOf(integer);
 		}
 	}
-	
-	
+
+
 	public static String Dollar2Cent(String s)
 	{
 		s = trim(s);
@@ -151,7 +151,7 @@ public class StringUtil
 			return s;
 		int i = 0;
 		int j = 0;
-		StringBuffer sb = new StringBuffer(s);
+		StringBuilder sb = new StringBuilder(s);
 		do
 		{
 			j = sb.length();
@@ -170,22 +170,22 @@ public class StringUtil
 		if (s == null)
 			return "";
 		String ss = s.trim();
-		String tmp = "";
+		StringBuilder tmp = new StringBuilder();
 		boolean lastIsSpace = false;
 		for (int i = 0; i < ss.length(); i++)
 		{
 			if (ss.charAt(i) != ' ' && ss.charAt(i) != '\t')
 			{
-				tmp += ss.charAt(i);
+				tmp.append(ss.charAt(i));
 				lastIsSpace = false;
 			}
 			else if (!lastIsSpace)
 			{
-				tmp += ' ';
+				tmp.append(' ');
 				lastIsSpace = true;
 			}
 		}
-		return tmp;
+		return tmp.toString();
 	}
 
 	public static boolean isDigitalString(String s)
@@ -222,7 +222,7 @@ public class StringUtil
 	{
 		try
 		{
-			return new String(s.getBytes("ISO-8859-1"), "GB2312");
+			return new String(s.getBytes(StandardCharsets.ISO_8859_1), "GB2312");
 		}
 		catch (UnsupportedEncodingException e)
 		{
@@ -234,7 +234,7 @@ public class StringUtil
 	{
 		try
 		{
-			return new String(s.getBytes("ISO-8859-1"), "GBK");
+			return new String(s.getBytes(StandardCharsets.ISO_8859_1), "GBK");
 		}
 		catch (UnsupportedEncodingException e)
 		{
@@ -244,13 +244,11 @@ public class StringUtil
 
 	public static String LeftPaddingChar(char c, int l, String string)
 	{
-		String str = "";
-		String cs = "";
-		if (string.length() > l)
-			str = string;
-		else
+		String str;
+		StringBuilder cs = new StringBuilder();
+		if (string.length() < l)
 			for (int i = 0; i < l - string.length(); i++)
-				cs = cs + c;
+				cs.append(c);
 		str = cs + string;
 		return str;
 	}
@@ -270,11 +268,9 @@ public class StringUtil
 
 	/**
 	 * �ַ�������
-	 * 
+	 *
 	 * @param password
-	 *            �ַ�����
 	 * @param algorithm
-	 *            �����㷨��SHA �� MD5
 	 * @return
 	 */
 	public static String encodePassword(String password, String algorithm)
@@ -307,7 +303,7 @@ public class StringUtil
 
 	/**
 	 * MD5�����ַ�
-	 * 
+	 *
 	 * @param str
 	 * @return
 	 */
@@ -318,7 +314,7 @@ public class StringUtil
 
 	/**
 	 * UCS2����
-	 * 
+	 *
 	 * @param src
 	 *            UCS2 Դ��
 	 * @return ������UTF-16BE�ַ�
@@ -332,21 +328,14 @@ public class StringUtil
 			bytes[i / 2] = (byte) (Integer.parseInt(src.substring(i, i + 2), 16));
 		}
 		String reValue;
-		try
-		{
-			reValue = new String(bytes, "UTF-16BE");
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			throw new Exception(e);
-		}
+		reValue = new String(bytes, StandardCharsets.UTF_16BE);
 		return reValue;
 
 	}
 
 	/**
 	 * UCS2����
-	 * 
+	 *
 	 * @param src
 	 *            UTF-16BE�����Դ��
 	 * @return ������UCS2��
@@ -356,23 +345,14 @@ public class StringUtil
 	{
 
 		byte[] bytes;
-		try
-		{
-			bytes = src.getBytes("UTF-16BE");
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			throw new Exception(e);
-		}
+		bytes = src.getBytes(StandardCharsets.UTF_16BE);
 
-		StringBuffer reValue = new StringBuffer();
-		StringBuffer tem = new StringBuffer();
-		for (int i = 0; i < bytes.length; i++)
-		{
+		StringBuilder reValue = new StringBuilder();
+		StringBuilder tem = new StringBuilder();
+		for (byte aByte : bytes) {
 			tem.delete(0, tem.length());
-			tem.append(Integer.toHexString(bytes[i] & 0xFF));
-			if (tem.length() == 1)
-			{
+			tem.append(Integer.toHexString(aByte & 0xFF));
+			if (tem.length() == 1) {
 				tem.insert(0, '0');
 			}
 			reValue.append(tem);
@@ -382,28 +362,24 @@ public class StringUtil
 
 	public static String getUCS24Ecard_hanzi(String hanzi) throws Exception
 	{
-		// ����+DCS(Ӣ��04;����08)+UCS2����+��λ'F'
 		String ucs2 = EncodeUCS2(hanzi);
 		int len = ucs2.length() / 2;
 		String len_hex = Integer.toHexString(len + 1).toUpperCase();
 		if (len_hex.length() < 2)
 			len_hex = "0" + len_hex;
 		ucs2 = len_hex + "08" + ucs2;
-		String padded = RightPaddingChar('F', 32, ucs2);
-		return padded;
+		return RightPaddingChar('F', 32, ucs2);
 	}
 
 	public static String getUCS24Ecard_english(String english) throws Exception
 	{
-		// ����+DCS(Ӣ��04;����08)+UCS2����+��λ'F'
 		String ucs2 = EncodeUCS2(english);
 		int len = ucs2.length() / 2;
 		String len_hex = Integer.toHexString(len + 1).toUpperCase();
 		if (len_hex.length() < 2)
 			len_hex = "0" + len_hex;
 		ucs2 = len_hex + "04" + ucs2;
-		String padded = RightPaddingChar('F', 32, ucs2);
-		return padded;
+		return RightPaddingChar('F', 32, ucs2);
 	}
 
 	public static String getSourceCodeFromUCS24(String ucs2) throws Exception
@@ -411,8 +387,7 @@ public class StringUtil
 		String len_string = ucs2.substring(0, 2);
 		int len = Integer.parseInt(len_string, 16);
 		String ucs2Data_string = ucs2.substring(4, len * 2 + 2);
-		String sourceCode = DecodeUCS2(ucs2Data_string);
-		return sourceCode;
+		return DecodeUCS2(ucs2Data_string);
 	}
 
 	public static String rightAlign(String value, int length)
@@ -435,9 +410,9 @@ public class StringUtil
 	{
 		int cnt;
 		int conv_len = bcd_str.length();
-		char ascii_buf[] = new char[2 * conv_len];
-		char bcd_buf[] = bcd_str.toCharArray();
-		String ss = "";
+		char[] ascii_buf = new char[2 * conv_len];
+		char[] bcd_buf = bcd_str.toCharArray();
+		StringBuilder ss = new StringBuilder();
 
 		for (cnt = 0; cnt < conv_len; cnt++)
 		{
@@ -447,8 +422,8 @@ public class StringUtil
 			ascii_buf[2 * cnt + 1] += ((ascii_buf[2 * cnt + 1] > 9) ? ('A' - 10) : '0');
 		}
 		for (int i = 0; i < 2 * conv_len; i++)
-			ss += ascii_buf[i];
-		return ss;
+			ss.append(ascii_buf[i]);
+		return ss.toString();
 	}
 
 	public byte[] AscToBcd(String a)
