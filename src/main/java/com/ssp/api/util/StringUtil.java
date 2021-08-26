@@ -267,7 +267,6 @@ public class StringUtil
 	}
 
 	/**
-	 * �ַ�������
 	 *
 	 * @param password
 	 * @param algorithm
@@ -302,7 +301,6 @@ public class StringUtil
 	}
 
 	/**
-	 * MD5�����ַ�
 	 *
 	 * @param str
 	 * @return
@@ -313,11 +311,9 @@ public class StringUtil
 	}
 
 	/**
-	 * UCS2����
 	 *
 	 * @param src
-	 *            UCS2 Դ��
-	 * @return ������UTF-16BE�ַ�
+	 * @return
 	 * @throws Exception
 	 */
 	public static String DecodeUCS2(String src) throws Exception
@@ -334,11 +330,9 @@ public class StringUtil
 	}
 
 	/**
-	 * UCS2����
 	 *
 	 * @param src
-	 *            UTF-16BE�����Դ��
-	 * @return ������UCS2��
+	 * @return
 	 * @throws Exception
 	 */
 	public static String EncodeUCS2(String src) throws Exception
@@ -501,7 +495,6 @@ public class StringUtil
 		}
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
